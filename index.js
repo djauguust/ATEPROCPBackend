@@ -35,11 +35,14 @@ const initApp = async () => {
 
 initApp();
 
+app.use(
+  "/atep",
+  require("./src/routes/Usuario.routes.js")
+);
 /* app.use(
-  "/api",
+  "/atep",
   require("./src/routes/Compras.routes.js"),
   require("./src/routes/Codigos.routes.js"),
-  require("./src/routes/Usuario.routes.js"),
   require("./src/routes/Ventas.routes.js"),
   require("./src/routes/Negocios.routes.js"),
   require("./src/routes/Productos.routes.js"),
