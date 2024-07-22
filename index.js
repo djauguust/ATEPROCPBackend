@@ -1,7 +1,8 @@
-import express, { request, response } from "express";
-import "dotenv/config";
-import cors from "cors";
-import morgan from "morgan";
+const express = require("express");
+const { request, response } = express;
+require("dotenv/config");
+const cors = require("cors");
+const morgan = require("morgan");
 const mongoose = require("mongoose");
 const connectDb = require("./src/database/db.js");
 
