@@ -11,11 +11,12 @@ const register = async (req, res) => {
     if (usuarioRepetido) {
       res.status(400).json({ message: "Username con cuenta existente" });
     } else {
+      const hash = await bcrypt.hash("ATEP1234", 10);
       const usuario = new Usuarios({
         nombre,
         apellido,
         username,
-        contrasenia: "waiting",
+        contrasenia: hash,
         esActivo: true,
         esAdmin: 0,
         renovarContrasenia: true,
@@ -30,13 +31,20 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const user = await Usuarios.findOne({ email: req.body.email });
+    if (!req.body.contrasenia || !req.body.username) {
+      return res.status(404).send({ message: "Falta usuario y/o contrasenia" });
+    }
+    const user = await Usuarios.findOne({ username: req.body.username });
     if (!user) {
-      return res.status(404).send("Usuario y/o contraseña incorrectos");
+      return res
+        .status(404)
+        .send({ message: "Usuario y/o contraseña incorrectos" });
     }
     const match = await bcrypt.compare(req.body.contrasenia, user.contrasenia);
     if (!match) {
-      return res.status(404).send("Usuario y/o contraseña incorrectos");
+      return res
+        .status(404)
+        .send({ message: "Usuario y/o contraseña incorrectos" });
     }
 
     //Creacion del Token
@@ -50,9 +58,17 @@ const login = async (req, res) => {
     );
     res.header("auth-token", token).json({
       message: "Usuario logueado con éxito",
-      data: { token, nombre: user.nombre, rol: user.esAdmin, id: user._id },
+      data: {
+        token,
+        nombre: user.nombre,
+        rol: user.esAdmin,
+        id: user._id,
+        renovarContrasenia: user.renovarContrasenia,
+      },
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 //GET
@@ -158,11 +174,11 @@ const forceChangePassword = async (req, res) => {
     if (user) {
       const hash = await bcrypt.hash("ATEP1234", 10);
       user.renovarContrasenia = true;
-      user.contrasenia= hash;
+      user.contrasenia = hash;
       await user.save();
       res.status(200).json({
         message:
-          "Pedido de contrasenia nueva actualizada. La contrasenia es ATEP1234",
+          "Pedido de contrasenia nueva actualizada. La contrasenia provisional es ATEP1234",
       });
     } else {
       res.status(404).json({ error: "Usuario no encontrado" });
@@ -185,7 +201,10 @@ const resetPassword = async (req, res) => {
       await user.save();
       res.status(200).json({ message: "Contrasenia actualizada" });
     } else {
-      res.status(404).json({ error: "Usuario no encontrado o no tiene permitido cambiar la contrasenia por este método" });
+      res.status(404).json({
+        error:
+          "Usuario no encontrado o no tiene permitido cambiar la contrasenia por este método",
+      });
     }
   } catch (error) {
     console.log(error);

@@ -11,9 +11,15 @@ const app = express();
 
 app.set("port", process.env.PORT || 5050);
 
+// Define un formato de log personalizado
+morgan.token("date", function () {
+  return new Date();
+});
+const format = ":date - :method :url :status :response-time ms";
+
 app.use(express.json()); // permite recibir objeto en formato json
 app.use(express.urlencoded({ extended: true })); // permite recibir parámetros en las rutas
-app.use(morgan("dev")); // Brinda detalles en nuestra terminal
+app.use(morgan(format)); // Brinda detalles en nuestra terminal
 app.use(cors()); // permite recibir peticiones remotas
 
 const initApp = async () => {
@@ -37,7 +43,8 @@ initApp();
 
 app.use(
   "/atep",
-  require("./src/routes/Usuario.routes.js")
+  require("./src/routes/Usuario.routes.js"),
+  require("./src/routes/Registro.routes.js")
 );
 /* app.use(
   "/atep",
