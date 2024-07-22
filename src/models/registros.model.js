@@ -8,7 +8,6 @@ const registroSchema = new mongoose.Schema({
   dni: {
     type: String,
     required: true,
-    unique: true,
   },
   telefono: {
     type: String,

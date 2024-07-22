@@ -21,7 +21,7 @@ const createRegister = async (req, res) => {
     await registro.save();
     res.status(201).json({ message: "¡Registro Creado!" });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 

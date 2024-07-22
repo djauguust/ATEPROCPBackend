@@ -40,6 +40,11 @@ const login = async (req, res) => {
         .status(404)
         .send({ message: "Usuario y/o contraseña incorrectos" });
     }
+    if (!user.esActivo) {
+      return res
+        .status(404)
+        .send({ message: "Usuario inactivo" });
+    }
     const match = await bcrypt.compare(req.body.contrasenia, user.contrasenia);
     if (!match) {
       return res
@@ -61,6 +66,7 @@ const login = async (req, res) => {
       data: {
         token,
         nombre: user.nombre,
+        apellido: user.apellido,
         rol: user.esAdmin,
         id: user._id,
         renovarContrasenia: user.renovarContrasenia,
